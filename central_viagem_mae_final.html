@@ -1,0 +1,479 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f5f0eb; color: #2a2118; min-height: 100vh; padding-bottom: 2rem; }
+  .hero { background: linear-gradient(160deg, #1a3a4a 0%, #0d2233 60%, #1c3a2a 100%); padding: 1.5rem 1.25rem 2rem; text-align: center; }
+  .hero-flag { font-size: 22px; letter-spacing: 3px; margin-bottom: 0.5rem; }
+  .hero h1 { font-family: 'Playfair Display', serif; color: #e8d5b0; font-size: 22px; font-weight: 600; line-height: 1.3; margin-bottom: 0.3rem; }
+  .hero-name { color: #d4b478; font-size: 11px; font-weight: 300; letter-spacing: 0.5px; }
+  .hero-sub { color: rgba(232,213,176,0.5); font-size: 10px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; margin-top: 0.5rem; }
+  .hero-dates { display: inline-flex; gap: 8px; align-items: center; background: rgba(212,180,120,0.15); border: 0.5px solid rgba(212,180,120,0.35); border-radius: 20px; padding: 6px 16px; color: #d4b478; font-size: 12px; margin-top: 1rem; }
+  .content { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+  .card { background: #fff; border-radius: 16px; padding: 1.25rem; border: 0.5px solid rgba(42,33,24,0.1); }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: #1a3a4a; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .card-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+  /* RELÓGIO */
+  .clocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .clock-box { background: #f5f0eb; border-radius: 12px; padding: 14px 10px; text-align: center; }
+  .clock-flag { font-size: 20px; margin-bottom: 6px; }
+  .clock-city { font-size: 11px; color: #7a6a58; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; margin-bottom: 8px; }
+  .clock-face { width: 70px; height: 70px; border-radius: 50%; background: #fff; border: 2px solid #d4b478; position: relative; margin: 0 auto 8px; }
+  .clock-hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; border-radius: 2px; }
+  .clock-hour { width: 2.5px; height: 20px; background: #1a3a4a; margin-left: -1.25px; }
+  .clock-min { width: 2px; height: 26px; background: #1a3a4a; margin-left: -1px; }
+  .clock-sec { width: 1.5px; height: 28px; background: #c4855a; margin-left: -0.75px; }
+  .clock-center { position: absolute; width: 6px; height: 6px; background: #1a3a4a; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 2; }
+  .clock-digital { font-size: 18px; font-weight: 500; color: #1a3a4a; letter-spacing: 1px; }
+  .clock-date { font-size: 10px; color: #7a6a58; margin-top: 3px; }
+  .clock-diff { text-align: center; margin-top: 8px; font-size: 11px; color: #7a6a58; }
+  .clock-diff span { color: #c4a96e; font-weight: 500; }
+
+  /* CARTÃO DE EMBARQUE */
+  .boarding-card { background: linear-gradient(135deg, #1a3a4a 0%, #0d2a3a 100%); border-radius: 14px; padding: 1.1rem; color: #e8d5b0; position: relative; overflow: hidden; }
+  .boarding-card::before { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(212,180,120,0.07); }
+  .boarding-airline { font-size: 11px; color: rgba(232,213,176,0.6); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+  .boarding-flight { font-size: 26px; font-weight: 500; color: #d4b478; letter-spacing: 2px; margin-bottom: 10px; }
+  .boarding-route { display: flex; align-items: center; gap: 0; margin-bottom: 12px; }
+  .boarding-city { flex: 1; }
+  .boarding-city.right { text-align: right; }
+  .boarding-code { font-size: 28px; font-weight: 500; line-height: 1; }
+  .boarding-name { font-size: 10px; color: rgba(232,213,176,0.6); margin-top: 2px; }
+  .boarding-arrow { padding: 0 8px; text-align: center; }
+  .boarding-line { height: 0.5px; width: 40px; background: rgba(212,180,120,0.4); position: relative; }
+  .boarding-line::after { content: '▸'; position: absolute; right: -6px; top: -8px; font-size: 10px; color: #d4b478; }
+  .boarding-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .boarding-item-label { font-size: 9px; color: rgba(232,213,176,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+  .boarding-item-value { font-size: 14px; font-weight: 500; color: #e8d5b0; }
+  .boarding-divider { border: none; border-top: 1px dashed rgba(212,180,120,0.25); margin: 10px 0; }
+  .boarding-seat-big { display: flex; align-items: center; justify-content: space-between; }
+  .boarding-seat-num { font-size: 40px; font-weight: 500; color: #d4b478; line-height: 1; }
+  .boarding-keycode-box { background: rgba(212,180,120,0.12); border: 0.5px solid rgba(212,180,120,0.3); border-radius: 8px; padding: 8px 12px; text-align: center; }
+  .boarding-keycode-label { font-size: 9px; color: rgba(232,213,176,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .boarding-keycode-value { font-size: 18px; font-weight: 500; color: #d4b478; letter-spacing: 3px; }
+
+  /* VOO */
+  .flight-leg { background: #f5f0eb; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+  .flight-leg:last-of-type { margin-bottom: 0; }
+  .flight-leg-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #7a6a58; margin-bottom: 8px; font-weight: 500; }
+  .flight-route { display: flex; align-items: center; }
+  .flight-city { flex: 1; }
+  .flight-city.right { text-align: right; }
+  .flight-city-code { font-size: 22px; font-weight: 500; color: #1a3a4a; line-height: 1; }
+  .flight-city-name { font-size: 11px; color: #7a6a58; margin-top: 2px; }
+  .flight-arrow { padding: 0 10px; }
+  .flight-line { height: 0.5px; width: 50px; background: linear-gradient(90deg, #c4a96e, #1a3a4a); position: relative; }
+  .flight-line::after { content: '▸'; position: absolute; right: -6px; top: -8px; font-size: 10px; color: #1a3a4a; }
+  .flight-info-row { display: flex; margin-top: 10px; gap: 8px; }
+  .flight-info-item { flex: 1; }
+  .flight-info-label { font-size: 10px; color: #7a6a58; text-transform: uppercase; letter-spacing: 0.8px; }
+  .flight-info-value { font-size: 12px; font-weight: 500; color: #2a2118; margin-top: 2px; }
+  .flight-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; background: #e8f0d8; color: #3a6a1a; font-weight: 500; }
+  .checkin-box { margin-top: 10px; background: #fff; border: 0.5px solid rgba(42,33,24,0.12); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .checkin-label { font-size: 10px; color: #7a6a58; text-transform: uppercase; letter-spacing: 1px; }
+  .baggage-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .bag-tag { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+  .bag-yes { background: #e8f0d8; color: #3a6a1a; }
+  .bag-no { background: #f0ece8; color: #9a8a78; }
+  .doc-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f5f0eb; border-radius: 10px; color: #2a2118; margin-top: 10px; border: 0.5px solid rgba(42,33,24,0.08); cursor: pointer; }
+  .doc-btn-text { font-size: 13px; font-weight: 500; flex: 1; }
+  .doc-btn-arrow { color: #7a6a58; font-size: 14px; }
+  .reserva-box { background: #f5f0eb; border-radius: 10px; padding: 10px 14px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .reserva-label { font-size: 11px; color: #7a6a58; }
+  .reserva-num { font-size: 14px; font-weight: 500; color: #1a3a4a; letter-spacing: 1px; }
+
+  /* MAPA */
+  .address-box { background: #f5f0eb; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .address-label { font-size: 11px; color: #7a6a58; margin-bottom: 6px; }
+  .address-line { font-size: 13px; font-weight: 500; color: #2a2118; line-height: 1.6; }
+  .map-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; background: #1a3a4a; color: #e8d5b0; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; }
+
+  /* CÂMBIO */
+  .currency-big { text-align: center; padding: 1rem 0 0.5rem; }
+  .currency-rate { font-size: 38px; font-weight: 500; color: #1a3a4a; line-height: 1; }
+  .currency-label { font-size: 12px; color: #7a6a58; margin-top: 4px; }
+  .currency-updated { font-size: 11px; color: #b0a090; margin-top: 2px; }
+  .currency-calc { background: #f5f0eb; border-radius: 12px; padding: 14px; margin-top: 14px; }
+  .calc-label { font-size: 12px; color: #7a6a58; margin-bottom: 8px; }
+  .calc-row { display: flex; gap: 8px; align-items: center; }
+  .calc-input { flex: 1; padding: 10px 12px; border: 0.5px solid rgba(42,33,24,0.15); border-radius: 8px; font-size: 16px; font-family: 'DM Sans', sans-serif; background: #fff; color: #2a2118; }
+  .calc-equals { color: #7a6a58; font-size: 18px; }
+  .calc-result { font-size: 20px; font-weight: 500; color: #1a3a4a; min-width: 80px; text-align: right; }
+  .currency-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
+  .badge-eur { background: #e8f0d8; color: #3a6a1a; }
+  .badge-brl { background: #fef0d8; color: #7a4a0a; }
+
+  /* SEGURO */
+  .insurance-grid { display: flex; flex-direction: column; gap: 8px; }
+  .ins-row { display: flex; align-items: center; padding: 10px 12px; background: #f5f0eb; border-radius: 10px; gap: 10px; }
+  .ins-label { font-size: 12px; color: #7a6a58; flex: 0 0 100px; }
+  .ins-value { font-size: 13px; font-weight: 500; color: #2a2118; flex: 1; }
+  .ins-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: #4a8a3a; }
+  .dot-blue { background: #1a3a4a; }
+  .dot-red { background: #c4855a; }
+  .ins-phone-box { background: #1a3a4a; border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+  .ins-phone-title { font-size: 11px; color: rgba(232,213,176,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .ins-phone-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 0.5px solid rgba(255,255,255,0.07); }
+  .ins-phone-row:last-child { border-bottom: none; }
+  .ins-phone-country { font-size: 12px; color: rgba(232,213,176,0.7); }
+  .ins-phone-num { font-size: 13px; font-weight: 500; color: #d4b478; }
+
+  /* CALENDÁRIO */
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-month { font-size: 15px; font-weight: 500; color: #1a3a4a; }
+  .cal-nav { background: #f5f0eb; border: none; border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-size: 14px; color: #1a3a4a; display: flex; align-items: center; justify-content: center; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
+  .cal-day-name { font-size: 10px; color: #7a6a58; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 0; font-weight: 500; }
+  .cal-day { padding: 6px 2px; font-size: 13px; border-radius: 8px; color: #2a2118; position: relative; min-height: 34px; display: flex; align-items: center; justify-content: center; }
+  .cal-day.event { background: #fef0d8; }
+  .cal-day.event::after { content: ''; width: 4px; height: 4px; background: #c4a96e; border-radius: 50%; position: absolute; bottom: 3px; }
+  .cal-day.range { background: #eef5e8; }
+  .cal-day.today { background: #1a3a4a; color: #e8d5b0; }
+  .events-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .event-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; background: #f5f0eb; border-radius: 10px; border-left: 3px solid #c4a96e; }
+  .event-date-block { text-align: center; flex-shrink: 0; min-width: 32px; }
+  .event-day-num { font-size: 18px; font-weight: 500; color: #1a3a4a; line-height: 1; }
+  .event-month-abbr { font-size: 10px; color: #7a6a58; text-transform: uppercase; letter-spacing: 1px; }
+  .event-details { flex: 1; }
+  .event-title { font-size: 13px; font-weight: 500; color: #2a2118; }
+  .event-desc { font-size: 12px; color: #7a6a58; margin-top: 2px; }
+  .event-time { font-size: 11px; color: #c4a96e; margin-top: 3px; font-weight: 500; }
+  .add-event-btn { width: 100%; padding: 12px; background: transparent; border: 0.5px dashed rgba(42,33,24,0.25); border-radius: 10px; color: #7a6a58; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 8px; }
+
+  /* EMERGÊNCIA */
+  .emergency-card { background: linear-gradient(135deg, #1a3a4a 0%, #0d2233 100%); border-radius: 16px; padding: 1.25rem; }
+  .emergency-title { font-family: 'Playfair Display', serif; color: #e8d5b0; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .emergency-list { display: flex; flex-direction: column; gap: 8px; }
+  .emergency-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.07); border-radius: 10px; }
+  .emergency-icon { font-size: 16px; }
+  .emergency-label { font-size: 11px; color: rgba(232,213,176,0.6); }
+  .emergency-value { font-size: 13px; color: #e8d5b0; font-weight: 500; }
+  .emergency-text { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-flag">🇧🇷 ✈ 🇵🇹</div>
+  <h1>Viagem de Mamãe</h1>
+  <div class="hero-name">Valéria da Silva Pinto Lauxen Kehl</div>
+  <div class="hero-sub">Guia completo da viagem</div>
+  <div class="hero-dates">✈ 28 abr → 08 jul 2026 · 71 dias</div>
+</div>
+
+<div class="content">
+
+  <!-- RELÓGIOS -->
+  <div class="card">
+    <div class="card-title"><div class="card-icon" style="background:#f0e8f8;">🕐</div>Horário Agora</div>
+    <div class="clocks-grid">
+      <div class="clock-box">
+        <div class="clock-flag">🇧🇷</div>
+        <div class="clock-city">Salvador · BRT</div>
+        <div class="clock-face">
+          <div class="clock-hand clock-hour" id="brHour"></div>
+          <div class="clock-hand clock-min" id="brMin"></div>
+          <div class="clock-hand clock-sec" id="brSec"></div>
+          <div class="clock-center"></div>
+        </div>
+        <div class="clock-digital" id="brDigital">--h--</div>
+        <div class="clock-date" id="brDate">--</div>
+      </div>
+      <div class="clock-box">
+        <div class="clock-flag">🇵🇹</div>
+        <div class="clock-city">Évora · WEST</div>
+        <div class="clock-face">
+          <div class="clock-hand clock-hour" id="ptHour"></div>
+          <div class="clock-hand clock-min" id="ptMin"></div>
+          <div class="clock-hand clock-sec" id="ptSec"></div>
+          <div class="clock-center"></div>
+        </div>
+        <div class="clock-digital" id="ptDigital">--h--</div>
+        <div class="clock-date" id="ptDate">--</div>
+      </div>
+    </div>
+    <div class="clock-diff" id="clockDiff"></div>
+  </div>
+
+  <!-- CARTÃO DE EMBARQUE -->
+  <div class="card">
+    <div class="card-title"><div class="card-icon" style="background:#e8f0f8;">🎫</div>Cartão de Embarque</div>
+    <div class="boarding-card">
+      <div class="boarding-airline">TAP Air Portugal · Star Alliance</div>
+      <div class="boarding-flight">TP 28</div>
+      <div class="boarding-route">
+        <div class="boarding-city">
+          <div class="boarding-code">SSA</div>
+          <div class="boarding-name">Salvador</div>
+        </div>
+        <div class="boarding-arrow"><div class="boarding-line"></div></div>
+        <div class="boarding-city right">
+          <div class="boarding-code">LIS</div>
+          <div class="boarding-name">Lisboa</div>
+        </div>
+      </div>
+      <div class="boarding-grid">
+        <div>
+          <div class="boarding-item-label">Data</div>
+          <div class="boarding-item-value">28 abr 26</div>
+        </div>
+        <div>
+          <div class="boarding-item-label">Partida</div>
+          <div class="boarding-item-value">23h45</div>
+        </div>
+        <div>
+          <div class="boarding-item-label">Embarque</div>
+          <div class="boarding-item-value">22h45</div>
+        </div>
+      </div>
+      <hr class="boarding-divider">
+      <div class="boarding-seat-big">
+        <div>
+          <div class="boarding-item-label">Assento</div>
+          <div class="boarding-seat-num">18A</div>
+          <div style="font-size:10px;color:rgba(232,213,176,0.5);margin-top:2px;">Zona C · Classe Y</div>
+        </div>
+        <div class="boarding-keycode-box">
+          <div class="boarding-keycode-label">Keycode</div>
+          <div class="boarding-keycode-value">33488</div>
+        </div>
+      </div>
+      <hr class="boarding-divider">
+      <div style="font-size:10px;color:rgba(232,213,176,0.45);text-align:center;">Porta fecha 30 min antes da partida · Verifique a porta no aeroporto</div>
+    </div>
+    <div class="doc-btn" style="margin-top:10px;">
+      <span style="font-size:18px;">📄</span>
+      <span class="doc-btn-text">Cartão de embarque (PDF)</span>
+      <span class="doc-btn-arrow">↗</span>
+    </div>
+  </div>
+
+  <!-- VOO -->
+  <div class="card">
+    <div class="card-title"><div class="card-icon" style="background:#e8f0f8;">✈</div>Informações do Voo</div>
+    <div class="flight-leg">
+      <div class="flight-leg-label">Ida — TAP Air Portugal · Voo 28</div>
+      <div class="flight-route">
+        <div class="flight-city"><div class="flight-city-code">SSA</div><div class="flight-city-name">Salvador</div></div>
+        <div class="flight-arrow"><div class="flight-line"></div></div>
+        <div class="flight-city right"><div class="flight-city-code">LIS</div><div class="flight-city-name">Lisboa</div></div>
+      </div>
+      <div class="flight-info-row">
+        <div class="flight-info-item"><div class="flight-info-label">Parte</div><div class="flight-info-value">28 abr, 23h45</div></div>
+        <div class="flight-info-item"><div class="flight-info-label">Chega</div><div class="flight-info-value">29 abr, 12h05</div></div>
+        <div class="flight-info-item"><div class="flight-info-label">Duração</div><div class="flight-info-value">8h 20min</div></div>
+      </div>
+      <div class="checkin-box">
+        <div><div class="checkin-label">Código Web Check-in</div><div style="font-size:16px;font-weight:500;color:#1a3a4a;letter-spacing:2px;">A28FC7</div></div>
+        <span class="flight-badge">Económico</span>
+      </div>
+      <div class="baggage-row">
+        <span class="bag-tag bag-yes">✓ Mochila/bolsa</span>
+        <span class="bag-tag bag-yes">✓ Bagagem de mão</span>
+        <span class="bag-tag bag-no">✗ Sem despacho</span>
+      </div>
+    </div>
+    <div class="flight-leg">
+      <div class="flight-leg-label">Volta — TAP Air Portugal · Voo 29</div>
+      <div class="flight-route">
+        <div class="flight-city"><div class="flight-city-code">LIS</div><div class="flight-city-name">Lisboa</div></div>
+        <div class="flight-arrow"><div class="flight-line"></div></div>
+        <div class="flight-city right"><div class="flight-city-code">SSA</div><div class="flight-city-name">Salvador</div></div>
+      </div>
+      <div class="flight-info-row">
+        <div class="flight-info-item"><div class="flight-info-label">Parte</div><div class="flight-info-value">08 jul, 17h30</div></div>
+        <div class="flight-info-item"><div class="flight-info-label">Chega</div><div class="flight-info-value">08 jul, 22h10</div></div>
+        <div class="flight-info-item"><div class="flight-info-label">Duração</div><div class="flight-info-value">8h 40min</div></div>
+      </div>
+      <div class="checkin-box">
+        <div><div class="checkin-label">Código Web Check-in</div><div style="font-size:16px;font-weight:500;color:#1a3a4a;letter-spacing:2px;">A28FC7</div></div>
+        <span class="flight-badge">Económico</span>
+      </div>
+      <div class="baggage-row">
+        <span class="bag-tag bag-yes">✓ Mochila/bolsa</span>
+        <span class="bag-tag bag-yes">✓ Bagagem de mão</span>
+        <span class="bag-tag bag-yes">✓ 1 mala despachada</span>
+      </div>
+    </div>
+    <div class="reserva-box">
+      <div><div class="reserva-label">Nº de reserva Decolar</div><div class="reserva-num">347894340300</div></div>
+    </div>
+    <div class="doc-btn">
+      <span style="font-size:18px;">📄</span>
+      <span class="doc-btn-text">Passagens — Valéria da Silva (PDF)</span>
+      <span class="doc-btn-arrow">↗</span>
+    </div>
+  </div>
+
+  <!-- MAPA -->
+  <div class="card">
+    <div class="card-title"><div class="card-icon" style="background:#e8f0d8;">📍</div>Casa da Cibele & Will</div>
+    <div class="address-box">
+      <div class="address-label">Endereço completo</div>
+      <div class="address-line">Rua Nossa Senhora da Guia, 3<br>São Sebastião da Giesteira<br>7000-202 Évora · Portugal</div>
+    </div>
+    <button class="map-btn" onclick="window.open('https://maps.google.com/?q=Rua+Nossa+Senhora+da+Guia+3,+São+Sebastião+da+Giesteira,+7000-202+Évora,+Portugal','_blank')">📍 Abrir no Google Maps</button>
+  </div>
+
+  <!-- CÂMBIO -->
+  <div class="card">
+    <div class="card-title">
+      <div class="card-icon" style="background:#fef0d8;">💱</div>
+      Câmbio <span class="currency-badge badge-eur" style="margin-left:auto;font-family:'DM Sans';">EUR</span> <span class="currency-badge badge-brl">BRL</span>
+    </div>
+    <div class="currency-big">
+      <div class="currency-rate" id="rateDisplay">carregando…</div>
+      <div class="currency-label">1 Euro = ? Reais</div>
+      <div class="currency-updated" id="rateUpdated"></div>
+    </div>
+    <div class="currency-calc">
+      <div class="calc-label">Calcule rapidinho</div>
+      <div class="calc-row">
+        <div style="display:flex;align-items:center;gap:6px;flex:1;">
+          <span style="font-size:12px;color:#7a6a58;">€</span>
+          <input type="number" class="calc-input" id="eurInput" value="50" min="0">
+        </div>
+        <span class="calc-equals">=</span>
+        <div class="calc-result" id="brlResult">R$ —</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGURO -->
+  <div class="card">
+    <div class="card-title"><div class="card-icon" style="background:#e8f8e8;">🛡</div>Seguro Viagem · Affinity</div>
+    <div class="insurance-grid">
+      <div class="ins-row"><div class="ins-dot dot-green"></div><div class="ins-label">Seguradora</div><div class="ins-value">Sabemi Seguradora S.A</div></div>
+      <div class="ins-row"><div class="ins-dot dot-blue"></div><div class="ins-label">Plano</div><div class="ins-value">Affinity Europa 30</div></div>
+      <div class="ins-row"><div class="ins-dot dot-green"></div><div class="ins-label">Apólice nº</div><div class="ins-value">E11-102/582541632-531</div></div>
+      <div class="ins-row"><div class="ins-dot dot-blue"></div><div class="ins-label">Ticket nº</div><div class="ins-value">4083472</div></div>
+      <div class="ins-row"><div class="ins-dot dot-green"></div><div class="ins-label">Válido de</div><div class="ins-value">28/04/2026 a 07/07/2026</div></div>
+      <div class="ins-row"><div class="ins-dot dot-red"></div><div class="ins-label">Cobertura</div><div class="ins-value">até EUR 30.000 médico</div></div>
+    </div>
+    <div class="ins-phone-box">
+      <div class="ins-phone-title">📞 Central 24h — em caso de emergência ligue:</div>
+      <div class="ins-phone-row"><span class="ins-phone-country">🇵🇹 Portugal</span><span class="ins-phone-num">800 180 177</span></div>
+      <div class="ins-phone-row"><span class="ins-phone-country">🇧🇷 Brasil</span><span class="ins-phone-num">0800 038 0621</span></div>
+      <div class="ins-phone-row"><span class="ins-phone-country">🌍 Internacional</span><span class="ins-phone-num">+1 866 764 7904</span></div>
+      <div class="ins-phone-row"><span class="ins-phone-country">💬 WhatsApp</span><span class="ins-phone-num">+1 863 201 4897</span></div>
+    </div>
+    <div class="doc-btn" style="margin-top:10px;">
+      <span style="font-size:18px;">📄</span>
+      <span class="doc-btn-text">Apólice do seguro (PDF)</span>
+      <span class="doc-btn-arrow">↗</span>
+    </div>
+  </div>
+
+  <!-- CALENDÁRIO -->
+  <div class="card">
+    <div class="card-title"><div class="card-icon" style="background:#f8e8f0;">🗓</div>Programação da Viagem</div>
+    <div class="cal-header">
+      <button class="cal-nav" id="prevMonth">‹</button>
+      <div class="cal-month" id="calMonth"></div>
+      <button class="cal-nav" id="nextMonth">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="events-list" id="eventsList"></div>
+    <button class="add-event-btn" onclick="sendPrompt('Quero adicionar uma atividade no calendário da minha mãe')">+ adicionar atividade</button>
+  </div>
+
+  <!-- EMERGÊNCIA -->
+  <div class="emergency-card">
+    <div class="emergency-title">☎ Contatos de Emergência</div>
+    <div class="emergency-list">
+      <div class="emergency-item">
+        <span class="emergency-icon">👩</span>
+        <div class="emergency-text"><div class="emergency-label">Cibele (filha em Évora)</div><div class="emergency-value">+351 960 109 767</div></div>
+      </div>
+      <div class="emergency-item">
+        <span class="emergency-icon">👨</span>
+        <div class="emergency-text"><div class="emergency-label">Will (genro)</div><div class="emergency-value">+351 924 051 883</div></div>
+      </div>
+      <div class="emergency-item">
+        <span class="emergency-icon">🏥</span>
+        <div class="emergency-text"><div class="emergency-label">Emergência em Portugal</div><div class="emergency-value">112</div></div>
+      </div>
+      <div class="emergency-item">
+        <span class="emergency-icon">🛡</span>
+        <div class="emergency-text"><div class="emergency-label">Affinity Seguro (Portugal)</div><div class="emergency-value">800 180 177</div></div>
+      </div>
+      <div class="emergency-item">
+        <span class="emergency-icon">🇧🇷</span>
+        <div class="emergency-text"><div class="emergency-label">Consulado BR em Lisboa</div><div class="emergency-value">+351 21 724 4600</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // RELÓGIOS
+  function pad(n) { return String(n).padStart(2,'0'); }
+  function updateClocks() {
+    const now = new Date();
+    const brOffset = -3 * 60;
+    const ptOffset = 1 * 60;
+    const brTime = new Date(now.getTime() + (brOffset - now.getTimezoneOffset()) * 60000);
+    const ptTime = new Date(now.getTime() + (ptOffset - now.getTimezoneOffset()) * 60000);
+    const brH = brTime.getHours(), brM = brTime.getMinutes(), brS = brTime.getSeconds();
+    const ptH = ptTime.getHours(), ptM = ptTime.getMinutes(), ptS = ptTime.getSeconds();
+    document.getElementById('brHour').style.transform = `rotate(${(brH%12)*30+brM*0.5}deg)`;
+    document.getElementById('brMin').style.transform = `rotate(${brM*6+brS*0.1}deg)`;
+    document.getElementById('brSec').style.transform = `rotate(${brS*6}deg)`;
+    document.getElementById('brDigital').textContent = `${pad(brH)}h${pad(brM)}`;
+    const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    document.getElementById('brDate').textContent = days[brTime.getDay()] + ', ' + brTime.getDate() + '/' + pad(brTime.getMonth()+1);
+    document.getElementById('ptHour').style.transform = `rotate(${(ptH%12)*30+ptM*0.5}deg)`;
+    document.getElementById('ptMin').style.transform = `rotate(${ptM*6+ptS*0.1}deg)`;
+    document.getElementById('ptSec').style.transform = `rotate(${ptS*6}deg)`;
+    document.getElementById('ptDigital').textContent = `${pad(ptH)}h${pad(ptM)}`;
+    document.getElementById('ptDate').textContent = days[ptTime.getDay()] + ', ' + ptTime.getDate() + '/' + pad(ptTime.getMonth()+1);
+    document.getElementById('clockDiff').innerHTML = `Portugal está <span>+4h à frente</span> do Brasil`;
+  }
+  setInterval(updateClocks, 1000);
+  updateClocks();
+
+  // CÂMBIO
+  let currentRate = null;
+  async function fetchRate() {
+    try {
+      const r = await fetch('https://api.exchangerate-api.com/v4/latest/EUR');
+      const d = await r.json();
+      currentRate = d.rates.BRL;
+      document.getElementById('rateDisplay').textContent = 'R$ ' + currentRate.toFixed(2);
+      document.getElementById('rateUpdated').textContent = 'Atualizado agora';
+      updateCalc();
+    } catch(e) {
+      document.getElementById('rateDisplay').textContent = 'R$ 6,00';
+      document.getElementById('rateUpdated').textContent = 'Taxa aproximada';
+      currentRate = 6.00; updateCalc();
+    }
+  }
+  function updateCalc() {
+    const eur = parseFloat(document.getElementById('eurInput').value) || 0;
+    document.getElementById('brlResult').textContent = 'R$ ' + (eur * (currentRate || 6)).toFixed(2).replace('.', ',');
+  }
+  document.getElementById('eurInput').addEventListener('input', updateCalc);
+
+  // CALENDÁRIO
+  const events = [
+    { day: 28, month: 3, year: 2026, endDay: 28, title: 'Partida de Salvador', desc: 'Aeroporto Luis Eduardo Magalhães · 23h45', time: 'SSA → LIS · Assento 18A', color: '#1a3a4a' },
+    { day: 29, month: 3, year: 2026, endDay: 29, title: 'Chegada em Lisboa', desc: 'Aeroporto Portela · Viagem para Évora', time: '12h05', color: '#4a8a3a' },
+    { day: 30, month: 3, year: 2026, endDay: 30, title: 'Os Caminhos da Água da Prata', desc: 'Visita guiada · Fundação Eugénio de Almeida', time: '15h30', color: '#7a4a9a' },
+    { day: 1, month: 4, year: 2026, endDay: 7, title: 'Viagem ao Algarve', desc: '7 dias explorando o sul de Portugal', time: '1 a 7 de maio', color: '#1a7a6a' },
+    { day: 22, month: 4, year: 2026, endDay: 23, title: 'Évora Wine', desc: 'Festival de vinhos em Évora', time: '22 e 23 de maio', color: '#8a2a4a' },
+    { day: 5, month: 5, year: 2026, endDay: 5, title: '🎂 Aniversário do Will', desc: 'Parabéns ao genro!', time: 'dia todo', color: '#c4855a' },
+    { day: 8, month: 6, year: 2026, endDay: 8, title: 'Retorno para Salvador', desc: 'Aeroporto Portela · 17h30', time: 'LIS → SSA', color: '#c4855a' },
+  ];
+  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const daysShort = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  let viewYear = 2026, viewMonth = 3;
+  function isInRange(d, month, year, ev) {
+    if (ev.month !== month || ev.year !== year) return false;
+    return d >= ev.day && d <= ev.
